@@ -16,6 +16,7 @@ interface GameSession {
   shuffledCountries: Country[];
   currentIndex: number;
   score: number;
+  revealedCountries: string[]; // Array of country codes that have been revealed
 }
 
 @Injectable()
@@ -57,9 +58,11 @@ export class GameService implements OnModuleInit {
       shuffledCountries: shuffled,
       currentIndex: 0,
       score: 0,
+      revealedCountries: [], // Start with no countries revealed
     };
     
-    const initialTotalArea = this.totalLandArea;
+    // Start with 0 land area since no countries are revealed yet
+    const initialTotalArea = 0;
     await this.redis.hmset(
       this.getSessionKey(userId),
       'session',
@@ -70,7 +73,8 @@ export class GameService implements OnModuleInit {
     await this.redis.expire(this.getSessionKey(userId), 60 * 30); // 30 minute session expiry
     return {
       totalLandArea: this.totalLandArea,
-      startingTotalLandArea: this.totalLandArea
+      startingTotalLandArea: 0, // Start with empty world
+      nextCountryHint: shuffled[0].land_area_sq_km // Hint for the first country
     };
   }
   
@@ -84,22 +88,30 @@ export class GameService implements OnModuleInit {
     }
 
     const session: GameSession = JSON.parse(sessionData);
-    const totalLandArea = parseFloat(totalAreaData);
+    const currentTotalArea = parseFloat(totalAreaData);
     const correctCountry = session.shuffledCountries[session.currentIndex];
 
     if (guess.trim().toLowerCase() === correctCountry.name.toLowerCase()) {
-      // Correct guess
+      // Correct guess - reveal the country
       session.score += 1;
+      session.revealedCountries.push(correctCountry.country_code);
       session.currentIndex += 1;
 
-      // Calculate the new total land area
-      const newTotalArea = totalLandArea - correctCountry.land_area_sq_km;
+      // Calculate the new total land area (add the revealed country's area)
+      const newTotalArea = currentTotalArea + correctCountry.land_area_sq_km;
 
-      // Check for win condition
+      // Check for win condition (all countries revealed)
       if (session.currentIndex >= session.shuffledCountries.length) {
         await this.leaderboardService.submitScore(userId, session.score);
         await this.redis.del(sessionKey);
-        return { correct: true, gameWon: true, finalScore: session.score, newTotalArea };
+        return { 
+          correct: true, 
+          gameWon: true, 
+          finalScore: session.score, 
+          newTotalArea,
+          revealedCountryCode: correctCountry.country_code,
+          nextCountryHint: null // No more countries to guess
+        };
       }
 
       // Save the new session and total area back to Redis
@@ -108,10 +120,11 @@ export class GameService implements OnModuleInit {
 
       return {
         correct: true,
-        removedCountryCode: correctCountry.country_code,
+        revealedCountryCode: correctCountry.country_code,
         nextAreaChange: session.shuffledCountries[session.currentIndex].land_area_sq_km,
         newScore: session.score,
         newTotalArea, // Return the new total area
+        nextCountryHint: session.shuffledCountries[session.currentIndex].land_area_sq_km, // Hint for next country
       };
     } else {
       // Incorrect guess

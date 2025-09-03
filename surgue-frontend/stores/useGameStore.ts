@@ -6,19 +6,17 @@ interface SurgueState {
   gameState: GameState;
   score: number;
   currentArea: number;
-  // --- ADDED ---
   totalLandArea: number; 
-  // --- ADDED ---
-  removedCountryCode: string | null;
+  revealedCountryCode: string | null; // Changed from removedCountryCode
   lastCorrectAnswer: string | null;
+  currentHint: number | null; // Surface area hint for the country to guess
   setGameState: (state: GameState) => void;
   setScore: (score: number) => void;
   setCurrentArea: (area: number) => void;
-  // --- ADDED ---
   setTotalLandArea: (area: number) => void;
-  // --- ADDED ---
-  setRemovedCountryCode: (code: string | null) => void;
+  setRevealedCountryCode: (code: string | null) => void; // Changed from setRemovedCountryCode
   setLastCorrectAnswer: (answer: string | null) => void;
+  setCurrentHint: (hint: number | null) => void;
   resetGame: () => void;
 }
 
@@ -26,27 +24,24 @@ export const useGameStore = create<SurgueState>((set) => ({
   gameState: 'idle',
   score: 0,
   currentArea: 0,
-  // --- ADDED ---
   totalLandArea: 0,
-  // --- ADDED ---
-  removedCountryCode: null,
+  revealedCountryCode: null, // Changed from removedCountryCode
   lastCorrectAnswer: null,
+  currentHint: null,
   setGameState: (state) => set({ gameState: state }),
   setScore: (score) => set({ score }),
   setCurrentArea: (area) => set({ currentArea: area }),
-  // --- ADDED ---
   setTotalLandArea: (area) => set({ totalLandArea: area }),
-  // --- ADDED ---
-  setRemovedCountryCode: (code) => set({ removedCountryCode: code }),
+  setRevealedCountryCode: (code) => set({ revealedCountryCode: code }), // Changed from setRemovedCountryCode
   setLastCorrectAnswer: (answer) => set({ lastCorrectAnswer: answer }),
+  setCurrentHint: (hint) => set({ currentHint: hint }),
   resetGame: () => set({ 
     gameState: 'idle', 
     score: 0, 
     currentArea: 0,
-    // --- ADDED ---
     totalLandArea: 0,
-    // --- ADDED ---
-    removedCountryCode: null,
+    revealedCountryCode: null, // Changed from removedCountryCode
     lastCorrectAnswer: null,
+    currentHint: null,
   }),
 }));
