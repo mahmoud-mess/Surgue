@@ -1,0 +1,35 @@
+# Dependencies
+/node_modules
+
+# Build output
+/.next/
+/out/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Source Directory Ignores
+# Ignore compiled JS and map files in the source directory
+src/*.js
+src/**/*.js
+src/**/*.js.map
+src/**/**/*.js
+src/**/**/**/*.js
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# IDE & Editor Directories
+.idea
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db

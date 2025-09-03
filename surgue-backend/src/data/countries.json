@@ -1,0 +1,5 @@
+[
+    {"name": "Russia", "country_code": "RUS", "land_area_sq_km": 16377742},
+    {"name": "Canada", "country_code": "CAN", "land_area_sq_km": 9093507},
+    {"name": "China", "country_code": "CHN", "land_area_sq_km": 9388211}
+  ]
